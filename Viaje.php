@@ -150,13 +150,24 @@ class Viaje
 
         if ($base->Iniciar()) {
             if ($base->Ejecutar($consulta)) {
-                $colViajes = [];
                 while ($fila = $base->Registro()) {
-                    $objEmpresa = new Empresa;
-                    $objResponsable = new Responsable;
-                    $viaje = new Viaje;
+                    //Corregí que listar() utilice buscar()
+                    $idResponsable = $fila['rnumeroempleado'];
+                    $responsable = new Responsable;
+                    $responsable->buscar($idResponsable);
+                    if ($responsable == false) {
+                        $responsable = null;
+                    }
 
-                    $viaje->cargar($fila["idviaje"], $fila["vdestino"], $fila["vcantmaxpasajeros"], $objEmpresa->buscar($fila["idempresa"]), $objResponsable->buscar($fila["rnumeroempleado"]), $fila["vimporte"]);
+                    $idEmpresa = $fila['idempresa'];
+                    $empresa = new Empresa;
+                    $empresa->buscar($idEmpresa);
+                    if ($empresa == false) {
+                        $empresa = null;
+                    }
+
+                    $viaje = new Viaje;
+                    $viaje->cargar($fila['idviaje'], $fila['vdestino'], $fila['vcantmaxpasajeros'], $empresa, $responsable, $fila['vimporte']);
                     array_push($colViajes, $viaje);
                 }
             } else {
